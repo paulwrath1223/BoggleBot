@@ -152,7 +152,7 @@ class Board:
                         valid_words.append(possible_word)
             # print(f"valid words with next letter \'{current_letter}\': {valid_words}")
             if len(valid_words) > 0:
-                word.add_tile(tile)
+                word.add_tile(tile)  # TODO: this changes 'word' globally for all branches
                 self.solve_tick(word, valid_words)
         return
 
@@ -272,7 +272,4 @@ print()
 all_words = process_word_list()
 
 for solved_word_1 in main_board.solve(test_words):
-    # TODO: why doesn't banister work?
-    #  only fails if word list contains "bar" or another word with same beginning but different thread
-    #  solve_tick is not recursing correctly
     print(solved_word_1)
