@@ -1,6 +1,6 @@
 from colorama import Fore
 
-all_words = ["cat", "fat", "mogus"]  # TODO
+all_words = ["cat", "fat", "mogus", "bar"]  # TODO
 board_x_dim = 4
 board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
@@ -47,16 +47,24 @@ class Tile:
 
 
 class Board:
+    tile_array = [[Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile]]
 
     def __init__(self):
         self.solved_words = []
-        self.tile_array = [[Tile] * board_x_dim] * board_y_dim
 
         # for y in range(board_y_dim):
         #     for x in range(board_x_dim):
         #         self.tile_array[y][x] = Tile(x, y, 'a')
         #         print(f"self.tile_array[{y}][{x}] = {self.tile_array[y][x]}")
         #         print(f"Tile({x}, {y}, 'a') = {Tile(x, y, 'a')}")
+
+    def possible_words(self, all_words_list: [str]):
+        tile_letters_as_string = self.get_all_letters()
+        possible_word_list = []
+        for word in all_words_list:
+            if a_can_be_made_from_b(word, tile_letters_as_string):
+                possible_word_list.append(word)
+        return possible_word_list
 
     def print_board(self):
         # print(self.tile_array)
@@ -67,7 +75,7 @@ class Board:
                 # print(f"{x}, {y}: ", end="\t")
                 match current_tile.modifier:
                     case 0:
-                        print(current_tile.letter, end=" ")
+                        print(Fore.WHITE + current_tile.letter, end=" ")
                     case 1:
                         print(Fore.BLUE + current_tile.letter, end=" ")
                     case 2:
@@ -83,7 +91,7 @@ class Board:
     def set_tile(self, x: int, y: int, letter: str, modifier: int = 0):
         temp_tile = Tile(x, y, letter, modifier)
         self.tile_array[y][x] = temp_tile
-        print(f"setting tile {x}, {y} to {temp_tile}")
+        # print(f"setting tile {x}, {y} to {temp_tile}")
 
     def get_tile(self, x: int, y: int):
         return self.tile_array[y][x]
@@ -98,11 +106,12 @@ class Board:
     def add_word(self, word):
         self.solved_words.append(word)
 
-    def solve(self, word_list: [str]):
+    def solve(self, all_words_list: [str]):
+        word_list = self.possible_words(all_words_list)
         for x in range(board_x_dim):
             for y in range(board_y_dim):
                 current_tile = self.tile_array[y][x]
-                current_letter = current_tile.letter()
+                current_letter = current_tile.letter
                 current_word = Word([current_tile])
                 valid_words = []
                 for word in word_list:
@@ -112,7 +121,7 @@ class Board:
         return sorted(self.solved_words, key=lambda x1: x1.get_points(), reverse=True)
 
     def solve_tick(self, word, word_list: [str]):
-        word.check_word()
+        word.check_word(self, word_list)
         next_tiles = word.get_next_letters(self)
         if len(next_tiles) == 0:
             return
@@ -160,7 +169,7 @@ class Word:
         return letter_sum * global_mult
 
     def get_next_letters(self, board_in: Board):
-        current_tile_coords = (self.tiles[len(self.tiles)]).locate()
+        current_tile_coords = (self.tiles[len(self.tiles)-1]).locate()
         next_tiles = []
         next_coords = []
         for a in range(-1, 2):
@@ -211,15 +220,6 @@ def a_can_be_made_from_b(a: str, b: str):
     return True
 
 
-def possible_words(board_in: Board):
-    tile_letters_as_string = board_in.get_all_letters()
-    possible_word_list = []
-    for word in all_words:
-        if a_can_be_made_from_b(word, tile_letters_as_string):
-            possible_word_list.append(word)
-    return possible_word_list
-
-
 main_board = Board()
 main_board.set_tile(0, 0, 'p', 0)
 main_board.set_tile(0, 1, 't', 1)
@@ -241,6 +241,8 @@ main_board.set_tile(3, 1, 's', 0)
 main_board.set_tile(3, 2, 'a', 3)
 main_board.set_tile(3, 3, 'b', 0)
 
-print(main_board.tile_array[1][2])
-
 main_board.print_board()
+
+for solved_word_1 in main_board.solve(all_words):
+    print(solved_word_1)
+
