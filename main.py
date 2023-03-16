@@ -10,7 +10,6 @@ board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
 
 
-
 class Tile:
     letter = None
     modifier = None
