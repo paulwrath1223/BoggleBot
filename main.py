@@ -7,7 +7,7 @@ test_words = ["bi", "banister"]
 board_x_dim = 4
 board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
-letter_values = ["ATSIERO", "LNDU", "YGH", "BPMCF", "KV", "", "W", "X", "", "JZQ"]
+
 
 
 class Tile:
@@ -25,15 +25,15 @@ class Tile:
         self.x = x
         self.y = y
         self.letter = letter
-        self.value = get_letter_points(letter)
+        self.letter_multiplier = 1
         self.word_multiplier = 1
         self.modifier = modifier
         if modifier != 0:
             match modifier:
                 case 1:
-                    self.value = self.value * 2
+                    self.letter_multiplier = self.letter_multiplier * 2
                 case 2:
-                    self.value = self.value * 3
+                    self.letter_multiplier = self.letter_multiplier * 3
                 case 3:
                     self.word_multiplier = self.word_multiplier * 2
                 case 4:
@@ -137,6 +137,9 @@ class Board:
         return sorted(self.solved_words, key=lambda x1: x1.get_points(), reverse=True)
 
     def solve_tick(self, word, word_list: [str]):
+        # print(f"solve_tick called with {word.get_word_as_string()}, {word_list}")
+        # word = copy.deepcopy(word_ref)
+        # word_list = copy.deepcopy(word_list_ref)
         word.check_word(self, word_list)
         next_tiles = word.get_next_letters(self)
         # print(f"solve_tick next tiles = {next_tiles}")
@@ -144,20 +147,25 @@ class Board:
             return
         for tile in next_tiles:
             # print(f"{word.get_word_as_string()} checking tile {tile}")
-            valid_words = []
             current_letter = tile.letter
+            potential_word_string = word.get_word_as_string() + current_letter
+            # print(f"potential_word_string: {potential_word_string}")
+            valid_words = []
             for possible_word in word_list:
                 if len(possible_word) > len(word.tiles):
-                    if possible_word[len(word.tiles)] == current_letter:
+                    # print(f"possible_word[0:len(word.tiles)]: {possible_word[0:len(word.tiles)+1]}")
+                    if possible_word[0:len(word.tiles) + 1] == potential_word_string:
                         valid_words.append(possible_word)
             # print(f"valid words with next letter \'{current_letter}\': {valid_words}")
             if len(valid_words) > 0:
-                word.add_tile(tile)  # TODO: this changes 'word' globally for all branches
+                word.add_tile(tile)
                 self.solve_tick(word, valid_words)
+                word.back()
         return
 
 
 def get_letter_points(letter):
+    letter_values = ["atsiero", "lndu", "ygh", "bpmcf", "kv", "", "w", "x", "", "jzq"]
     for i in range(len(letter_values)):
         if letter in letter_values[i]:
             return i + 1
@@ -177,14 +185,28 @@ class Word:
         self.tiles.append(tile)
 
     def get_points(self):
+        length_bonus = 0
         if len(self.tiles) <= 2:
             return 1
+        elif len(self.tiles) == 5:
+            length_bonus = 3
+        elif len(self.tiles) == 6:
+            length_bonus = 6
+        elif len(self.tiles) == 7:
+            length_bonus = 10
+        elif len(self.tiles) == 8:
+            length_bonus = 15
+        elif len(self.tiles) >= 9:
+            length_bonus = 20
+
         global_mult = 1
         letter_sum = 0
         for tile in self.tiles:
             global_mult = global_mult * tile.word_multiplier
-            letter_sum += tile.value
-        return letter_sum * global_mult
+            letter_sum += get_letter_points(tile.letter) * tile.letter_multiplier
+        # if self.get_word_as_string() == "banister":
+        #     print(f"letter points: {letter_sum}\nlegth bonus: {length_bonus}\nmultiplier: {global_mult}")
+        return length_bonus + letter_sum * global_mult
 
     def get_next_letters(self, board_in: Board):
 
@@ -234,6 +256,9 @@ class Word:
         # print(f"{current_word_as_string} is a not valid word")
         return False
 
+    def back(self):
+        self.tiles.pop(len(self.tiles) - 1)
+
 
 def a_can_be_made_from_b(a: str, b: str):
     a_list = [0] * len(alphabet)
@@ -271,5 +296,5 @@ print()
 
 all_words = process_word_list()
 
-for solved_word_1 in main_board.solve(test_words):
+for solved_word_1 in main_board.solve(all_words):
     print(solved_word_1)

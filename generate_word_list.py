@@ -2,7 +2,6 @@
 
 
 def process_word_list():
-    print("called process_word_list")
     completed_words = []
     with open('all_words.txt') as f:
 
