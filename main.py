@@ -1,6 +1,8 @@
 from colorama import Fore
+import copy
+from generate_word_list import process_word_list
 
-all_words = ["cat", "fat", "mogus", "bar"]  # TODO
+test_words = ["cat", "fat", "mogus", "bar", "bars", "nett"]
 board_x_dim = 4
 board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
@@ -8,7 +10,6 @@ letter_values = ["ATSIERO", "LNDU", "YGH", "BPMCF", "KV", "", "W", "X", "", "JZQ
 
 
 class Tile:
-
     letter = None
     modifier = None
     x = None
@@ -47,7 +48,10 @@ class Tile:
 
 
 class Board:
-    tile_array = [[Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile], [Tile, Tile, Tile, Tile]]
+    tile_array = [[Tile, Tile, Tile, Tile],
+                  [Tile, Tile, Tile, Tile],
+                  [Tile, Tile, Tile, Tile],
+                  [Tile, Tile, Tile, Tile]]
 
     def __init__(self):
         self.solved_words = []
@@ -104,7 +108,15 @@ class Board:
         return all_letters
 
     def add_word(self, word):
-        self.solved_words.append(word)
+        current_word_as_string = word.get_word_as_string()
+        current_word_points = word.get_points()
+        for past_word in self.solved_words:
+            if past_word.get_word_as_string() == current_word_as_string:
+                if past_word.get_points() < current_word_points:
+                    self.solved_words.remove(past_word)
+                else:
+                    return
+        self.solved_words.append(copy.deepcopy(word))
 
     def solve(self, all_words_list: [str]):
         word_list = self.possible_words(all_words_list)
@@ -116,26 +128,31 @@ class Board:
                 valid_words = []
                 for word in word_list:
                     if word[0] == current_letter:
-                        valid_words += word
-                self.solve_tick(current_word, valid_words)
+                        valid_words.append(word)
+                if len(valid_words) > 0:
+                    # print(f"calling solve_tick with word {current_word} and valid words {valid_words}")
+                    self.solve_tick(current_word, valid_words)
+        # return self.solved_words
         return sorted(self.solved_words, key=lambda x1: x1.get_points(), reverse=True)
 
     def solve_tick(self, word, word_list: [str]):
         word.check_word(self, word_list)
         next_tiles = word.get_next_letters(self)
+        # print(f"solve_tick next tiles = {next_tiles}")
         if len(next_tiles) == 0:
             return
         for tile in next_tiles:
+            # print(f"{word.get_word_as_string()} checking tile {tile}")
             valid_words = []
             current_letter = tile.letter
-            for word in word_list:
-                if word[0] == current_letter:
-                    valid_words += word
-            if len(valid_words) == 0:
-                return
-            word.add_tile(tile)
-            self.solve_tick(word, valid_words)
-            return
+            for possible_word in word_list:
+                if len(possible_word) > len(word.tiles):
+                    if possible_word[len(word.tiles)] == current_letter:
+                        valid_words.append(possible_word)
+            # print(f"valid words with next letter \'{current_letter}\': {valid_words}")
+            if len(valid_words) > 0:
+                word.add_tile(tile)
+                self.solve_tick(word, valid_words)
         return
 
 
@@ -169,7 +186,8 @@ class Word:
         return letter_sum * global_mult
 
     def get_next_letters(self, board_in: Board):
-        current_tile_coords = (self.tiles[len(self.tiles)-1]).locate()
+
+        current_tile_coords = (self.tiles[len(self.tiles) - 1]).locate()
         next_tiles = []
         next_coords = []
         for a in range(-1, 2):
@@ -181,7 +199,12 @@ class Word:
                 next_coords.remove(tile_coords)
         for coord in next_coords:
             if (0 <= coord[0] < board_y_dim) and (0 <= coord[1] < board_x_dim):
-                next_tiles.append(board_in.get_tile(coord[1], coord[0]))
+                next_tiles.append(board_in.get_tile(coord[0], coord[1]))
+
+        next_tiles_as_string = ""
+        for temp_tile in next_tiles:
+            next_tiles_as_string = next_tiles_as_string + temp_tile.letter + ", "
+        # print(f"get_next_letters({self.get_word_as_string()}, board) = {next_tiles_as_string}")
         return next_tiles
 
     def get_valid_next_words(self, word_list: [str]):
@@ -201,13 +224,14 @@ class Word:
 
     def check_word(self, board_in: Board, word_list: [str]):
         current_word_as_string = self.get_word_as_string()
-        if current_word_as_string in word_list:
-            board_in.add_word(self)
-            return True
-        return False
 
-    def back_one_tile(self):
-        self.tiles.pop(len(self.tiles))
+        if len(self.tiles) > 1:
+            if current_word_as_string in word_list:
+                board_in.add_word(self)
+                # print(f"{current_word_as_string} is a valid word")
+                return True
+        # print(f"{current_word_as_string} is a not valid word")
+        return False
 
 
 def a_can_be_made_from_b(a: str, b: str):
@@ -242,7 +266,8 @@ main_board.set_tile(3, 2, 'a', 3)
 main_board.set_tile(3, 3, 'b', 0)
 
 main_board.print_board()
+print()
 
+all_words = process_word_list()
 for solved_word_1 in main_board.solve(all_words):
     print(solved_word_1)
-
