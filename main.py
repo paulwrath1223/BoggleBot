@@ -2,7 +2,8 @@ from colorama import Fore
 import copy
 from generate_word_list import process_word_list
 
-test_words = ["cat", "fat", "mogus", "bar", "bars", "nett"]
+test_words = ["bi", "banister"]
+
 board_x_dim = 4
 board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
@@ -269,5 +270,9 @@ main_board.print_board()
 print()
 
 all_words = process_word_list()
-for solved_word_1 in main_board.solve(all_words):
+
+for solved_word_1 in main_board.solve(test_words):
+    # TODO: why doesn't banister work?
+    #  only fails if word list contains "bar" or another word with same beginning but different thread
+    #  solve_tick is not recursing correctly
     print(solved_word_1)
