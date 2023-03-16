@@ -56,6 +56,9 @@ class Word:
             tiles = []
         self.tiles = tiles
 
+    def add_tile(self, tile):
+        self.tiles.append(tile)
+
     def get_points(self):
         global_mult = 1
         letter_sum = 0
@@ -76,9 +79,20 @@ class Word:
             if tile_coords in next_coords:
                 next_coords.remove(tile_coords)
         for coord in next_coords:
-            next_tiles.append(board_in[coord[1]][coord[0]])
+            if (0 <= coord[0] < board_y_dim) and (0 <= coord[1] < board_x_dim):
+                next_tiles.append(board_in.get_tile(coord[1], coord[0]))
+        return next_tiles
 
-
+    def get_valid_next_words(self):
+        current_word_as_string = ""
+        valid_next_words = []
+        for tile in self.tiles:
+            current_word_as_string += tile.letter
+        word_length = len(current_word_as_string)
+        for word in all_words:
+            if word[0:word_length] == current_word_as_string:
+                valid_next_words.append(word)
+        return valid_next_words
 
 
 
