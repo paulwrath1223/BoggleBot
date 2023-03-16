@@ -71,7 +71,9 @@ class Board:
             print()
 
     def set_tile(self, x: int, y: int, letter: str, modifier: int = 0):
-        self.tile_array[y][x] = Tile(x, y, letter, modifier)
+        temp_tile = Tile(x, y, letter, modifier)
+        self.tile_array[y][x] = temp_tile
+        return temp_tile
 
     def get_tile(self, x: int, y: int):
         return self.tile_array[y][x]
@@ -209,24 +211,24 @@ def possible_words(board_in: Board):
 
 
 main_board = Board()
-main_board.set_tile(0, 0, 'p', 0)
-main_board.set_tile(0, 1, 't', 1)
-main_board.set_tile(0, 2, 'v', 0)
-main_board.set_tile(0, 3, 'p', 0)
+print(main_board.set_tile(0, 0, 'p', 0))
+print(main_board.set_tile(0, 1, 't', 1))
+print(main_board.set_tile(0, 2, 'v', 0))
+print(main_board.set_tile(0, 3, 'p', 0))
 
-main_board.set_tile(1, 0, 'i', 0)
-main_board.set_tile(1, 1, 's', 0)
-main_board.set_tile(1, 2, 'e', 0)
-main_board.set_tile(1, 3, 'g', 0)
+print(main_board.set_tile(1, 0, 'i', 0))
+print(main_board.set_tile(1, 1, 's', 0))
+print(main_board.set_tile(1, 2, 'e', 0))
+print(main_board.set_tile(1, 3, 'g', 0))
 
-main_board.set_tile(2, 0, 't', 1)
-main_board.set_tile(2, 1, 'r', 0)
-main_board.set_tile(2, 2, 'i', 0)
-main_board.set_tile(2, 3, 'n', 0)
+print(main_board.set_tile(2, 0, 't', 1))
+print(main_board.set_tile(2, 1, 'r', 0))
+print(main_board.set_tile(2, 2, 'i', 0))
+print(main_board.set_tile(2, 3, 'n', 0))
 
-main_board.set_tile(3, 0, 'm', 0)
-main_board.set_tile(3, 1, 's', 0)
-main_board.set_tile(3, 2, 'a', 3)
-main_board.set_tile(3, 3, 'b', 0)
+print(main_board.set_tile(3, 0, 'm', 0))
+print(main_board.set_tile(3, 1, 's', 0))
+print(main_board.set_tile(3, 2, 'a', 3))
+print(main_board.set_tile(3, 3, 'b', 0))
 
 main_board.print_board()
