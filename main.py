@@ -1,3 +1,4 @@
+from colorama import Fore
 all_words = ["cat", "fat", "mogus"]  # TODO
 board_x_dim = 4
 board_y_dim = 4
@@ -17,6 +18,7 @@ class Tile:
         self.letter = letter
         self.value = get_letter_points(letter)
         self.word_multiplier = 1
+        self.modifier = modifier
         if modifier != 0:
             match modifier:
                 case 1:
@@ -30,6 +32,9 @@ class Tile:
                 case _:
                     raise Exception("modifier must be an int 0-4")
 
+    def __str__(self):
+        return self.letter + " at (" + str(self.x) + ", " + str(self.y) + ") with modifier: " + str(self.modifier)
+
     def locate(self):
         return self.x, self.y
 
@@ -37,11 +42,33 @@ class Tile:
 class Board:
 
     def __init__(self):
-        self.valid_words = []
-        self.tile_array = [[] * board_x_dim] * board_y_dim
+        self.solved_words = []
+        self.tile_array = [[Tile(None, None, 'a')] * board_x_dim] * board_y_dim
         for y in range(board_y_dim):
             for x in range(board_x_dim):
                 self.tile_array[y][x] = Tile(x, y, 'a')
+                # print(f"self.tile_array[{y}][{x}] = {self.tile_array[y][x]}")
+                # print(f"Tile({x}, {y}, 'a') = {Tile(x, y, 'a')}")
+
+    def print_board(self):
+        for y in range(board_y_dim):
+            for x in range(board_x_dim):
+                # print(self.tile_array[y][x])
+                current_tile = self.tile_array[y][x]
+                match current_tile.modifier:
+                    case 0:
+                        print(current_tile.letter, end=" ")
+                    case 1:
+                        print(Fore.BLUE + current_tile.letter, end=" ")
+                    case 2:
+                        print(Fore.GREEN + current_tile.letter, end=" ")
+                    case 3:
+                        print(Fore.RED + current_tile.letter, end=" ")
+                    case 4:
+                        print(Fore.YELLOW + current_tile.letter, end=" ")
+                    case _:
+                        raise Exception("modifier must be an int 0-4")
+            print()
 
     def set_tile(self, x: int, y: int, letter: str, modifier: int = 0):
         self.tile_array[y][x] = Tile(x, y, letter, modifier)
@@ -57,26 +84,62 @@ class Board:
         return all_letters
 
     def add_word(self, word):
-        self.valid_words.append(word)
+        self.solved_words.append(word)
+
+    def solve(self, word_list: [str]):
+        for x in range(board_x_dim):
+            for y in range(board_y_dim):
+                current_tile = self.tile_array[y][x]
+                current_letter = current_tile.letter()
+                current_word = Word([current_tile])
+                valid_words = []
+                for word in word_list:
+                    if word[0] == current_letter:
+                        valid_words += word
+                self.solve_tick(current_word, valid_words)
+        return sorted(self.solved_words, key=lambda x1: x1.get_points(), reverse=True)
+
+    def solve_tick(self, word, word_list: [str]):
+        word.check_word()
+        next_tiles = word.get_next_letters(self)
+        if len(next_tiles) == 0:
+            return
+        for tile in next_tiles:
+            valid_words = []
+            current_letter = tile.letter
+            for word in word_list:
+                if word[0] == current_letter:
+                    valid_words += word
+            if len(valid_words) == 0:
+                return
+            word.add_tile(tile)
+            self.solve_tick(word, valid_words)
+            return
+        return
 
 
 def get_letter_points(letter):
     for i in range(len(letter_values)):
         if letter in letter_values[i]:
-            return i+1
+            return i + 1
     return 1
 
 
 class Word:
-    def __init__(self, tiles=None):
+    def __init__(self, tiles: [Tile] = None):
         if tiles is None:
             tiles = []
         self.tiles = tiles
+
+    def __str__(self):
+        return str(self.get_points()) + " : " + self.get_word_as_string()
 
     def add_tile(self, tile: Tile):
         self.tiles.append(tile)
 
     def get_points(self):
+        if len(self.tiles) <= 2:
+            return 1
         global_mult = 1
         letter_sum = 0
         for tile in self.tiles:
@@ -90,7 +153,7 @@ class Word:
         next_coords = []
         for a in range(-1, 2):
             for b in range(-1, 2):
-                next_coords.append((current_tile_coords[0]+a, current_tile_coords[1]+b))
+                next_coords.append((current_tile_coords[0] + a, current_tile_coords[1] + b))
         for tile in self.tiles:
             tile_coords = tile.locate()
             if tile_coords in next_coords:
@@ -101,28 +164,33 @@ class Word:
         return next_tiles
 
     def get_valid_next_words(self, word_list: [str]):
-        current_word_as_string = ""
+        current_word_as_string = self.get_word_as_string()
         valid_next_words = []
-        for tile in self.tiles:
-            current_word_as_string += tile.letter
         word_length = len(current_word_as_string)
         for word in word_list:
             if word[0:word_length] == current_word_as_string:
                 valid_next_words.append(word)
         return valid_next_words
 
-    def check_word(self, board_in: Board, word_list: [str]):
+    def get_word_as_string(self):
         current_word_as_string = ""
         for tile in self.tiles:
             current_word_as_string += tile.letter
+        return current_word_as_string
+
+    def check_word(self, board_in: Board, word_list: [str]):
+        current_word_as_string = self.get_word_as_string()
         if current_word_as_string in word_list:
             board_in.add_word(self)
             return True
         return False
 
+    def back_one_tile(self):
+        self.tiles.pop(len(self.tiles))
+
 
 def a_can_be_made_from_b(a: str, b: str):
-    a_list = [0]*len(alphabet)
+    a_list = [0] * len(alphabet)
     for i in range(len(alphabet)):
         a_list[i] = a.count(alphabet[i])
     for j in range(len(alphabet)):
@@ -140,12 +208,25 @@ def possible_words(board_in: Board):
     return possible_word_list
 
 
+main_board = Board()
+main_board.set_tile(0, 0, 'p', 0)
+main_board.set_tile(0, 1, 't', 1)
+main_board.set_tile(0, 2, 'v', 0)
+main_board.set_tile(0, 3, 'p', 0)
 
+main_board.set_tile(1, 0, 'i', 0)
+main_board.set_tile(1, 1, 's', 0)
+main_board.set_tile(1, 2, 'e', 0)
+main_board.set_tile(1, 3, 'g', 0)
 
+main_board.set_tile(2, 0, 't', 1)
+main_board.set_tile(2, 1, 'r', 0)
+main_board.set_tile(2, 2, 'i', 0)
+main_board.set_tile(2, 3, 'n', 0)
 
+main_board.set_tile(3, 0, 'm', 0)
+main_board.set_tile(3, 1, 's', 0)
+main_board.set_tile(3, 2, 'a', 3)
+main_board.set_tile(3, 3, 'b', 0)
 
-
-
-
-
-
+main_board.print_board()
