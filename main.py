@@ -1,10 +1,12 @@
 all_words = ["cat", "fat", "mogus"]  # TODO
 board_x_dim = 4
 board_y_dim = 4
+alphabet = "abcdefghijklmnopqrstuvwyxz"
+letter_values = ["ATSIERO", "LNDU", "YGH", "BPMCF", "KV", "", "W", "X", "", "JZQ"]
 
 
 class Tile:
-    def __init__(self, x, y, letter, modifier=0):
+    def __init__(self, x: int, y: int, letter: str, modifier: int = 0):
         # 0 = no modifier
         # 1 = DL = Double Letter
         # 2 = TL = Triple Letter
@@ -33,21 +35,36 @@ class Tile:
 
 
 class Board:
+
     def __init__(self):
+        self.valid_words = []
         self.tile_array = [[] * board_x_dim] * board_y_dim
         for y in range(board_y_dim):
             for x in range(board_x_dim):
                 self.tile_array[y][x] = Tile(x, y, 'a')
 
-    def set_tile(self, x, y, letter, modifier=0):
+    def set_tile(self, x: int, y: int, letter: str, modifier: int = 0):
         self.tile_array[y][x] = Tile(x, y, letter, modifier)
 
-    def get_tile(self, x, y):
+    def get_tile(self, x: int, y: int):
         return self.tile_array[y][x]
+
+    def get_all_letters(self):
+        all_letters = ""
+        for tile_rows in self.tile_array:
+            for tile in tile_rows:
+                all_letters += tile.letter
+        return all_letters
+
+    def add_word(self, word):
+        self.valid_words.append(word)
 
 
 def get_letter_points(letter):
-    return 1  # TODO
+    for i in range(len(letter_values)):
+        if letter in letter_values[i]:
+            return i+1
+    return 1
 
 
 class Word:
@@ -56,7 +73,7 @@ class Word:
             tiles = []
         self.tiles = tiles
 
-    def add_tile(self, tile):
+    def add_tile(self, tile: Tile):
         self.tiles.append(tile)
 
     def get_points(self):
@@ -67,7 +84,7 @@ class Word:
             letter_sum += tile.value
         return letter_sum * global_mult
 
-    def get_next_letters(self, board_in):
+    def get_next_letters(self, board_in: Board):
         current_tile_coords = (self.tiles[len(self.tiles)]).locate()
         next_tiles = []
         next_coords = []
@@ -83,23 +100,44 @@ class Word:
                 next_tiles.append(board_in.get_tile(coord[1], coord[0]))
         return next_tiles
 
-    def get_valid_next_words(self):
+    def get_valid_next_words(self, word_list: [str]):
         current_word_as_string = ""
         valid_next_words = []
         for tile in self.tiles:
             current_word_as_string += tile.letter
         word_length = len(current_word_as_string)
-        for word in all_words:
+        for word in word_list:
             if word[0:word_length] == current_word_as_string:
                 valid_next_words.append(word)
         return valid_next_words
 
+    def check_word(self, board_in: Board, word_list: [str]):
+        current_word_as_string = ""
+        for tile in self.tiles:
+            current_word_as_string += tile.letter
+        if current_word_as_string in word_list:
+            board_in.add_word(self)
+            return True
+        return False
 
 
+def a_can_be_made_from_b(a: str, b: str):
+    a_list = [0]*len(alphabet)
+    for i in range(len(alphabet)):
+        a_list[i] = a.count(alphabet[i])
+    for j in range(len(alphabet)):
+        if b.count(alphabet[j]) < a_list[j]:
+            return False
+    return True
 
 
-
-
+def possible_words(board_in: Board):
+    tile_letters_as_string = board_in.get_all_letters()
+    possible_word_list = []
+    for word in all_words:
+        if a_can_be_made_from_b(word, tile_letters_as_string):
+            possible_word_list.append(word)
+    return possible_word_list
 
 
 
