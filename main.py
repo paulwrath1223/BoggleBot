@@ -1,4 +1,5 @@
 from colorama import Fore
+
 all_words = ["cat", "fat", "mogus"]  # TODO
 board_x_dim = 4
 board_y_dim = 4
@@ -7,7 +8,13 @@ letter_values = ["ATSIERO", "LNDU", "YGH", "BPMCF", "KV", "", "W", "X", "", "JZQ
 
 
 class Tile:
-    def __init__(self, x: int, y: int, letter: str, modifier: int = 0):
+
+    letter = None
+    modifier = None
+    x = None
+    y = None
+
+    def __init__(self, x: int = None, y: int = None, letter: str = None, modifier: int = 0):
         # 0 = no modifier
         # 1 = DL = Double Letter
         # 2 = TL = Triple Letter
@@ -43,18 +50,21 @@ class Board:
 
     def __init__(self):
         self.solved_words = []
-        self.tile_array = [[Tile(None, None, 'a')] * board_x_dim] * board_y_dim
-        for y in range(board_y_dim):
-            for x in range(board_x_dim):
-                self.tile_array[y][x] = Tile(x, y, 'a')
-                # print(f"self.tile_array[{y}][{x}] = {self.tile_array[y][x]}")
-                # print(f"Tile({x}, {y}, 'a') = {Tile(x, y, 'a')}")
+        self.tile_array = [[Tile] * board_x_dim] * board_y_dim
+
+        # for y in range(board_y_dim):
+        #     for x in range(board_x_dim):
+        #         self.tile_array[y][x] = Tile(x, y, 'a')
+        #         print(f"self.tile_array[{y}][{x}] = {self.tile_array[y][x]}")
+        #         print(f"Tile({x}, {y}, 'a') = {Tile(x, y, 'a')}")
 
     def print_board(self):
+        # print(self.tile_array)
         for y in range(board_y_dim):
             for x in range(board_x_dim):
                 # print(self.tile_array[y][x])
                 current_tile = self.tile_array[y][x]
+                # print(f"{x}, {y}: ", end="\t")
                 match current_tile.modifier:
                     case 0:
                         print(current_tile.letter, end=" ")
@@ -73,7 +83,7 @@ class Board:
     def set_tile(self, x: int, y: int, letter: str, modifier: int = 0):
         temp_tile = Tile(x, y, letter, modifier)
         self.tile_array[y][x] = temp_tile
-        return temp_tile
+        print(f"setting tile {x}, {y} to {temp_tile}")
 
     def get_tile(self, x: int, y: int):
         return self.tile_array[y][x]
@@ -211,24 +221,26 @@ def possible_words(board_in: Board):
 
 
 main_board = Board()
-print(main_board.set_tile(0, 0, 'p', 0))
-print(main_board.set_tile(0, 1, 't', 1))
-print(main_board.set_tile(0, 2, 'v', 0))
-print(main_board.set_tile(0, 3, 'p', 0))
+main_board.set_tile(0, 0, 'p', 0)
+main_board.set_tile(0, 1, 't', 1)
+main_board.set_tile(0, 2, 'v', 0)
+main_board.set_tile(0, 3, 'p', 0)
 
-print(main_board.set_tile(1, 0, 'i', 0))
-print(main_board.set_tile(1, 1, 's', 0))
-print(main_board.set_tile(1, 2, 'e', 0))
-print(main_board.set_tile(1, 3, 'g', 0))
+main_board.set_tile(1, 0, 'i', 0)
+main_board.set_tile(1, 1, 's', 0)
+main_board.set_tile(1, 2, 'e', 0)
+main_board.set_tile(1, 3, 'g', 0)
 
-print(main_board.set_tile(2, 0, 't', 1))
-print(main_board.set_tile(2, 1, 'r', 0))
-print(main_board.set_tile(2, 2, 'i', 0))
-print(main_board.set_tile(2, 3, 'n', 0))
+main_board.set_tile(2, 0, 't', 1)
+main_board.set_tile(2, 1, 'r', 0)
+main_board.set_tile(2, 2, 'i', 0)
+main_board.set_tile(2, 3, 'n', 0)
 
-print(main_board.set_tile(3, 0, 'm', 0))
-print(main_board.set_tile(3, 1, 's', 0))
-print(main_board.set_tile(3, 2, 'a', 3))
-print(main_board.set_tile(3, 3, 'b', 0))
+main_board.set_tile(3, 0, 'm', 0)
+main_board.set_tile(3, 1, 's', 0)
+main_board.set_tile(3, 2, 'a', 3)
+main_board.set_tile(3, 3, 'b', 0)
+
+print(main_board.tile_array[1][2])
 
 main_board.print_board()
