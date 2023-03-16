@@ -1,6 +1,7 @@
 from colorama import Fore
 import copy
 from generate_word_list import process_word_list
+import tkinter as tk
 
 test_words = ["bi", "banister"]
 
@@ -46,6 +47,9 @@ class Tile:
 
     def locate(self):
         return self.x, self.y
+
+    def to_tkinter_out(self, arrow_x: int, arrow_y: int):
+        label_var = tk.label(text=self.letter)
 
 
 class Board:
@@ -163,6 +167,37 @@ class Board:
                 word.back()
         return
 
+    def visualize_word(self, word_in):
+        arrow_array = [["↖", "⬆", "↗"],
+                       ["<", " ", ">"],
+                       ["↙", "⬇", "↘"]]
+        for y in range(board_y_dim):
+            for x in range(board_x_dim):
+                # print(self.tile_array[y][x])
+                current_tile = self.tile_array[y][x]
+                current_letter_upper = current_tile.letter.upper()
+                # print(f"{x}, {y}: ", end="\t")
+                color_modifier = Fore.WHITE
+                match current_tile.modifier:
+                    case 0:
+                        color_modifier = Fore.WHITE
+                    case 1:
+                        color_modifier = Fore.BLUE
+                    case 2:
+                        color_modifier = Fore.GREEN
+                    case 3:
+                        color_modifier = Fore.RED
+                    case 4:
+                        color_modifier = Fore.YELLOW
+                    case _:
+                        raise Exception("modifier must be an int 0-4")
+                tile_as_array = [["*", "*", "*"],
+                                  ["*", current_letter_upper, "*"],
+                                  ["*", "*", "*"]]
+                print(color_modifier + , end=" ")
+
+            print()
+
 
 def get_letter_points(letter):
     letter_values = ["atsiero", "lndu", "ygh", "bpmcf", "kv", "", "w", "x", "", "jzq"]
@@ -270,31 +305,33 @@ def a_can_be_made_from_b(a: str, b: str):
     return True
 
 
-main_board = Board()
-main_board.set_tile(0, 0, 'p', 0)
-main_board.set_tile(0, 1, 't', 1)
-main_board.set_tile(0, 2, 'v', 0)
-main_board.set_tile(0, 3, 'p', 0)
-
-main_board.set_tile(1, 0, 'i', 0)
-main_board.set_tile(1, 1, 's', 0)
-main_board.set_tile(1, 2, 'e', 0)
-main_board.set_tile(1, 3, 'g', 0)
-
-main_board.set_tile(2, 0, 't', 1)
-main_board.set_tile(2, 1, 'r', 0)
-main_board.set_tile(2, 2, 'i', 0)
-main_board.set_tile(2, 3, 'n', 0)
-
-main_board.set_tile(3, 0, 'm', 0)
-main_board.set_tile(3, 1, 's', 0)
-main_board.set_tile(3, 2, 'a', 3)
-main_board.set_tile(3, 3, 'b', 0)
-
-main_board.print_board()
-print()
-
-all_words = process_word_list()
-
-for solved_word_1 in main_board.solve(all_words):
-    print(solved_word_1)
+# main_board = Board()
+# main_board.set_tile(0, 0, 'p', 0)
+# main_board.set_tile(0, 1, 't', 1)
+# main_board.set_tile(0, 2, 'v', 0)
+# main_board.set_tile(0, 3, 'p', 0)
+#
+# main_board.set_tile(1, 0, 'i', 0)
+# main_board.set_tile(1, 1, 's', 0)
+# main_board.set_tile(1, 2, 'e', 0)
+# main_board.set_tile(1, 3, 'g', 0)
+#
+# main_board.set_tile(2, 0, 't', 1)
+# main_board.set_tile(2, 1, 'r', 0)
+# main_board.set_tile(2, 2, 'i', 0)
+# main_board.set_tile(2, 3, 'n', 0)
+#
+# main_board.set_tile(3, 0, 'm', 0)
+# main_board.set_tile(3, 1, 's', 0)
+# main_board.set_tile(3, 2, 'a', 3)
+# main_board.set_tile(3, 3, 'b', 0)
+#
+# main_board.print_board()
+# print()
+#
+# all_words = process_word_list()
+#
+# for solved_word_1 in main_board.solve(all_words):
+#     print(solved_word_1)
+window = tk.Tk()
+Tile(0, 0, 'a', 2)
