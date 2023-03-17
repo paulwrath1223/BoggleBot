@@ -1,6 +1,7 @@
 from colorama import Fore
 import copy
 from generate_word_list import process_word_list
+import time
 
 test_words = ["bi", "banister"]
 
@@ -80,15 +81,15 @@ class Board:
                 # print(f"{x}, {y}: ", end="\t")
                 match current_tile.modifier:
                     case 0:
-                        print(Fore.WHITE + current_tile.letter, end=" ")
+                        print(Fore.LIGHTWHITE_EX + current_tile.letter, end=" ")
                     case 1:
-                        print(Fore.BLUE + current_tile.letter, end=" ")
+                        print(Fore.LIGHTBLUE_EX + current_tile.letter, end=" ")
                     case 2:
-                        print(Fore.GREEN + current_tile.letter, end=" ")
+                        print(Fore.LIGHTGREEN_EX + current_tile.letter, end=" ")
                     case 3:
-                        print(Fore.RED + current_tile.letter, end=" ")
+                        print(Fore.LIGHTRED_EX + current_tile.letter, end=" ")
                     case 4:
-                        print(Fore.YELLOW + current_tile.letter, end=" ")
+                        print(Fore.LIGHTYELLOW_EX + current_tile.letter, end=" ")
                     case _:
                         raise Exception("modifier must be an int 0-4")
             print()
@@ -271,30 +272,39 @@ def a_can_be_made_from_b(a: str, b: str):
 
 
 main_board = Board()
-main_board.set_tile(0, 0, 'p', 0)
-main_board.set_tile(0, 1, 't', 1)
-main_board.set_tile(0, 2, 'v', 0)
-main_board.set_tile(0, 3, 'p', 0)
+main_board.set_tile(0, 0, 't', 0)
+main_board.set_tile(0, 1, 'a', 2)
+main_board.set_tile(0, 2, 's', 0)
+main_board.set_tile(0, 3, 'w', 0)
 
-main_board.set_tile(1, 0, 'i', 0)
-main_board.set_tile(1, 1, 's', 0)
-main_board.set_tile(1, 2, 'e', 0)
-main_board.set_tile(1, 3, 'g', 0)
+main_board.set_tile(1, 0, 't', 0)
+main_board.set_tile(1, 1, 'n', 4)
+main_board.set_tile(1, 2, 't', 0)
+main_board.set_tile(1, 3, 'f', 0)
 
-main_board.set_tile(2, 0, 't', 1)
-main_board.set_tile(2, 1, 'r', 0)
+main_board.set_tile(2, 0, 'p', 2)
+main_board.set_tile(2, 1, 'e', 0)
 main_board.set_tile(2, 2, 'i', 0)
-main_board.set_tile(2, 3, 'n', 0)
+main_board.set_tile(2, 3, 'a', 0)
 
-main_board.set_tile(3, 0, 'm', 0)
-main_board.set_tile(3, 1, 's', 0)
-main_board.set_tile(3, 2, 'a', 3)
-main_board.set_tile(3, 3, 'b', 0)
+main_board.set_tile(3, 0, 'r', 0)
+main_board.set_tile(3, 1, 'a', 0)
+main_board.set_tile(3, 2, 'l', 2)
+main_board.set_tile(3, 3, 'y', 0)
 
 main_board.print_board()
 print()
 
 all_words = process_word_list()
 
-for solved_word_1 in main_board.solve(all_words):
+# tic = time.perf_counter()
+# for i in range(1, 1000):
+#     all_solved_words = main_board.solve(all_words)
+#     print(f"finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
+
+all_solved_words = main_board.solve(all_words)
+
+print(Fore.LIGHTWHITE_EX + f"Found {len(all_solved_words)} words!\n")
+
+for solved_word_1 in all_solved_words:
     print(solved_word_1)
