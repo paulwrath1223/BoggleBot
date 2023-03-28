@@ -152,10 +152,11 @@ class Board:
             potential_word_string = word.get_word_as_string() + current_letter
             # print(f"potential_word_string: {potential_word_string}")
             valid_words = []
-            for possible_word in word_list:
-                if len(possible_word) > len(word.tiles):
+            current_word_length = len(word.tiles)
+            for possible_word in word_list:  # TODO: alphabetical search
+                if len(possible_word) > current_word_length:
                     # print(f"possible_word[0:len(word.tiles)]: {possible_word[0:len(word.tiles)+1]}")
-                    if possible_word[0:len(word.tiles) + 1] == potential_word_string:
+                    if possible_word[0:current_word_length + 1] == potential_word_string:
                         valid_words.append(possible_word)
             # print(f"valid words with next letter \'{current_letter}\': {valid_words}")
             if len(valid_words) > 0:
