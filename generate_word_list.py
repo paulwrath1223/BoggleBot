@@ -14,4 +14,5 @@ def process_word_list():
                 else:
                     completed_words.append(line.replace("\n", "").lower())
             line = f.readline()
+        completed_words.sort()
         return completed_words
