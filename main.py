@@ -341,16 +341,14 @@ print()
 
 all_words = process_word_list()
 
-# tic = time.perf_counter()
-# for i in range(1, 1000):
-#     all_solved_words = main_board.solve(all_words)
-#     print(f"finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
+tic = time.perf_counter()
+for i in range(1, 10):
+    all_solved_words = main_board.solve(all_words)
+    print(f"NEW METHOD: finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
 
-all_solved_words = main_board.solve(all_words)
+# all_solved_words = main_board.solve(all_words)
 
 print(Fore.LIGHTWHITE_EX + f"Found {len(all_solved_words)} words!\n")
 
 for solved_word_1 in all_solved_words:
     print(solved_word_1)
-
-
