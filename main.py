@@ -292,7 +292,7 @@ print()
 all_words = process_word_list()
 
 tic = time.perf_counter()
-for i in range(1, 100):
+for i in range(1, 10):
     all_solved_words = main_board.solve(all_words)
     print(f"OLD METHOD: finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
 
