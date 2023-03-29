@@ -308,9 +308,8 @@ def get_words_with_prefix(prefix: str, sorted_source: [str]):
 
     # print("end loop")
     indexer = index_of_first_value_with_prefix
-    print(f"starting at {sorted_source[index_of_first_value_with_prefix]} with prefix {prefix}")
-    while sorted_source[indexer][0:len(prefix)] == prefix:
-        print(f" adding: {sorted_source[indexer]}")
+
+    while indexer < len(sorted_source) and sorted_source[indexer][0:len(prefix)] == prefix:
         good_words.append(sorted_source[indexer])
         indexer += 1
     return good_words
