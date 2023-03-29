@@ -10,7 +10,6 @@ board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
 
 
-
 class Tile:
     letter = None
     modifier = None
@@ -144,6 +143,7 @@ class Board:
         word.check_word(self, word_list)
         next_tiles = word.get_next_letters(self)
         # print(f"solve_tick next tiles = {next_tiles}")
+        current_word_length = len(word.tiles)
         if len(next_tiles) == 0:
             return
         for tile in next_tiles:
@@ -151,13 +151,17 @@ class Board:
             current_letter = tile.letter
             potential_word_string = word.get_word_as_string() + current_letter
             # print(f"potential_word_string: {potential_word_string}")
-            valid_words = []
-            current_word_length = len(word.tiles)
-            for possible_word in word_list:  # TODO: alphabetical search
-                if len(possible_word) > current_word_length:
-                    # print(f"possible_word[0:len(word.tiles)]: {possible_word[0:len(word.tiles)+1]}")
-                    if possible_word[0:current_word_length + 1] == potential_word_string:
-                        valid_words.append(possible_word)
+
+            valid_words = get_words_with_prefix(potential_word_string, word_list)
+            # TODO: find words before selecting next tile ^
+
+            # valid_words = []
+            # for possible_word in word_list:
+            #     if len(possible_word) > current_word_length:
+            #         # print(f"possible_word[0:len(word.tiles)]: {possible_word[0:len(word.tiles)+1]}")
+            #         if possible_word[0:current_word_length + 1] == potential_word_string:
+            #             valid_words.append(possible_word)
+
             # print(f"valid words with next letter \'{current_letter}\': {valid_words}")
             if len(valid_words) > 0:
                 word.add_tile(tile)
@@ -272,6 +276,46 @@ def a_can_be_made_from_b(a: str, b: str):
     return True
 
 
+def get_words_with_prefix(prefix: str, sorted_source: [str]):
+    good_words = []
+    sorted_source_length = len(sorted_source)
+    indexer = int(sorted_source_length/2)
+    lower_bound = 0
+    upper_bound = sorted_source_length
+    index_of_first_value_with_prefix = 0
+    found = False
+    # print("start")
+    temp = 0
+    while not found and temp < 20:
+        temp += 1
+        indexer_of_sorted_source = sorted_source[indexer]
+        if prefix < indexer_of_sorted_source:
+            upper_bound = indexer
+            indexer = int((indexer + lower_bound) / 2)
+            # print(f"{prefix} comes before {indexer_of_sorted_source}, "
+            #       f"set upper_bound to {upper_bound}, and indexer to {indexer}")
+        elif prefix > indexer_of_sorted_source:
+            lower_bound = indexer
+            indexer = int((indexer + upper_bound) / 2)
+            # print(f"{prefix} comes after {indexer_of_sorted_source}, "
+            #       f"set lower_bound to {lower_bound}, and indexer to {indexer}")
+        else:
+            index_of_first_value_with_prefix = indexer
+            found = True
+        if upper_bound - lower_bound <= 1:
+            index_of_first_value_with_prefix = upper_bound
+            found = True
+
+    # print("end loop")
+    indexer = index_of_first_value_with_prefix
+    print(f"starting at {sorted_source[index_of_first_value_with_prefix]} with prefix {prefix}")
+    while sorted_source[indexer][0:len(prefix)] == prefix:
+        print(f" adding: {sorted_source[indexer]}")
+        good_words.append(sorted_source[indexer])
+        indexer += 1
+    return good_words
+
+
 main_board = Board()
 main_board.set_tile(0, 0, 't', 0)
 main_board.set_tile(0, 1, 'a', 2)
@@ -309,3 +353,5 @@ print(Fore.LIGHTWHITE_EX + f"Found {len(all_solved_words)} words!\n")
 
 for solved_word_1 in all_solved_words:
     print(solved_word_1)
+
+

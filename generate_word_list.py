@@ -2,6 +2,7 @@
 
 
 def process_word_list():
+    # TODO: sort list
     completed_words = []
     with open('all_scrabble_words.txt') as f:
         line = f.readline()
