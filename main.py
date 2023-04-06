@@ -1,6 +1,6 @@
 from colorama import Fore
 import copy
-from generate_word_list import process_word_list
+from generate_word_list import process_word_list, process_and_save_word_list
 import time
 
 test_words = ["bi", "banister"]
@@ -8,7 +8,6 @@ test_words = ["bi", "banister"]
 board_x_dim = 4
 board_y_dim = 4
 alphabet = "abcdefghijklmnopqrstuvwyxz"
-
 
 
 class Tile:
@@ -152,7 +151,7 @@ class Board:
             potential_word_string = word.get_word_as_string() + current_letter
             # print(f"potential_word_string: {potential_word_string}")
             valid_words = []
-            for possible_word in word_list:
+            for possible_word in word_list:  # TODO: could use better search because list is sorted
                 if len(possible_word) > len(word.tiles):
                     # print(f"possible_word[0:len(word.tiles)]: {possible_word[0:len(word.tiles)+1]}")
                     if possible_word[0:len(word.tiles) + 1] == potential_word_string:
@@ -272,25 +271,32 @@ def a_can_be_made_from_b(a: str, b: str):
 
 
 main_board = Board()
-main_board.set_tile(0, 0, 't', 0)
-main_board.set_tile(0, 1, 'a', 2)
-main_board.set_tile(0, 2, 's', 0)
-main_board.set_tile(0, 3, 'w', 0)
 
-main_board.set_tile(1, 0, 't', 0)
-main_board.set_tile(1, 1, 'n', 4)
-main_board.set_tile(1, 2, 't', 0)
-main_board.set_tile(1, 3, 'f', 0)
+# 0 = no modifier
+# 1 = DL = Double Letter
+# 2 = TL = Triple Letter
+# 3 = DW = Double Word
+# 4 = TW = Triple Word
 
-main_board.set_tile(2, 0, 'p', 2)
-main_board.set_tile(2, 1, 'e', 0)
-main_board.set_tile(2, 2, 'i', 0)
-main_board.set_tile(2, 3, 'a', 0)
+main_board.set_tile(0, 0, 'p', 0)
+main_board.set_tile(0, 1, 'p', 0)
+main_board.set_tile(0, 2, 't', 0)
+main_board.set_tile(0, 3, 'e', 0)
 
-main_board.set_tile(3, 0, 'r', 0)
-main_board.set_tile(3, 1, 'a', 0)
-main_board.set_tile(3, 2, 'l', 2)
-main_board.set_tile(3, 3, 'y', 0)
+main_board.set_tile(1, 0, 'o', 0)
+main_board.set_tile(1, 1, 'o', 1)
+main_board.set_tile(1, 2, 'a', 1)
+main_board.set_tile(1, 3, 'n', 0)
+
+main_board.set_tile(2, 0, 'n', 0)
+main_board.set_tile(2, 1, 'i', 3)
+main_board.set_tile(2, 2, 'l', 0)
+main_board.set_tile(2, 3, 's', 0)
+
+main_board.set_tile(3, 0, 'p', 0)
+main_board.set_tile(3, 1, 'e', 0)
+main_board.set_tile(3, 2, 'd', 0)
+main_board.set_tile(3, 3, 'e', 0)
 
 main_board.print_board()
 print()
@@ -308,3 +314,5 @@ print(Fore.LIGHTWHITE_EX + f"Found {len(all_solved_words)} words!\n")
 
 for solved_word_1 in all_solved_words:
     print(solved_word_1)
+
+# process_and_save_word_list()
