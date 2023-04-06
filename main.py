@@ -56,7 +56,6 @@ class Board:
 
     def __init__(self):
         self.solved_words = []
-
         # for y in range(board_y_dim):
         #     for x in range(board_x_dim):
         #         self.tile_array[y][x] = Tile(x, y, 'a')
@@ -198,7 +197,6 @@ class Word:
             length_bonus = 15
         elif len(self.tiles) >= 9:
             length_bonus = 20
-
         global_mult = 1
         letter_sum = 0
         for tile in self.tiles:
@@ -209,7 +207,6 @@ class Word:
         return length_bonus + letter_sum * global_mult
 
     def get_next_letters(self, board_in: Board):
-
         current_tile_coords = (self.tiles[len(self.tiles) - 1]).locate()
         next_tiles = []
         next_coords = []
@@ -223,7 +220,6 @@ class Word:
         for coord in next_coords:
             if (0 <= coord[0] < board_y_dim) and (0 <= coord[1] < board_x_dim):
                 next_tiles.append(board_in.get_tile(coord[0], coord[1]))
-
         next_tiles_as_string = ""
         for temp_tile in next_tiles:
             next_tiles_as_string = next_tiles_as_string + temp_tile.letter + ", "
@@ -247,7 +243,6 @@ class Word:
 
     def check_word(self, board_in: Board, word_list: [str]):
         current_word_as_string = self.get_word_as_string()
-
         if len(self.tiles) > 1:
             if current_word_as_string in word_list:
                 board_in.add_word(self)
@@ -303,10 +298,10 @@ print()
 
 all_words = process_word_list()
 
-# tic = time.perf_counter()
-# for i in range(1, 1000):
+tic = time.perf_counter()
+# for i in range(1, 10):
 #     all_solved_words = main_board.solve(all_words)
-#     print(f"finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
+#     print(f"OLD METHOD: finished {i} solves, averaging {((time.perf_counter() - tic)/i):0.4f} seconds each")
 
 all_solved_words = main_board.solve(all_words)
 
